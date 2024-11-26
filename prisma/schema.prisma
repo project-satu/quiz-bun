@@ -1,0 +1,342 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "mysql"
+  url      = env("DATABASE_URL")
+}
+
+model Address {
+  id          Int      @id @default(autoincrement())
+  uuid        String   @unique
+  fullAddress String
+  userId      Int?     @unique
+  cityId      Int
+  user        User?    @relation(fields: [userId], references: [id])
+  city        City?    @relation(fields: [cityId], references: [id])
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+}
+
+model Badge {
+  id              Int      @id @default(autoincrement())
+  uuid            String   @unique
+  title           String
+  value           String   @unique
+  description     String
+  image           String
+  isActive        Boolean  @default(true)
+  requiredPoints  Int      @default(0)
+  userBadge       UserBadge[]
+  createdAt       DateTime @default(now())
+  updatedAt       DateTime @updatedAt
+}
+
+model BlogPost {
+  id          Int      @id @default(autoincrement())
+  uuid        String   @unique
+  title       String
+  content     String
+  image       String?
+  authorId    Int?
+  categories  Category[]
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+  author      User?    @relation(fields: [authorId], references: [id])
+}
+
+model CarouselBanner {
+  id          Int      @id @default(autoincrement())
+  uuid        String   @unique
+  title       String
+  description String?
+  image       String
+  link        String?
+  isActive    Boolean  @default(true)
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+}
+
+model Category {
+  id              Int      @id @default(autoincrement())
+  uuid            String   @unique
+  title           String
+  value           String   @unique
+  type            String?
+  materials       Material[]
+  modulePackages  ModulePackage[]
+  quizzes         Quiz[]
+  questions       Question[]
+  blogPosts       BlogPost[]
+  tags            Tag[]
+  createdAt       DateTime @default(now())
+  updatedAt       DateTime @updatedAt
+}
+
+model Tag {
+  id          Int      @id @default(autoincrement())
+  uuid        String   @unique
+  parentId    Int?
+  title       String
+  level       Int      @default(1)
+  categoryId  Int?
+  value       String?  @unique
+  parent      Tag?     @relation("TagToParent", fields: [parentId], references: [id])
+  children    Tag[]    @relation("TagToParent")
+  category    Category? @relation(fields: [categoryId], references: [id])
+  quizzes     Quiz[]
+  materials   Material[]
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+}
+
+model City {
+  id              Int      @id @default(autoincrement())
+  uuid            String   @unique
+  name            String
+  districtCapital String
+  provinceId      Int?
+  province        Province? @relation(fields: [provinceId], references: [id])
+  addresses       Address[]
+  createdAt       DateTime @default(now())
+  updatedAt       DateTime @updatedAt
+}
+
+model Province {
+  id                Int      @id @default(autoincrement())
+  uuid              String   @unique
+  name              String
+  provincialCapital String
+  value             Int      @unique
+  cities            City[]
+  createdAt         DateTime @default(now())
+  updatedAt         DateTime @updatedAt
+}
+
+model Event {
+  id          Int      @id @default(autoincrement())
+  uuid        String   @unique
+  title       String
+  content     String
+  image       String?
+  isActive    Boolean  @default(true)
+  eventDate   DateTime
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+}
+
+model Material {
+  id              Int      @id @default(autoincrement())
+  uuid            String   @unique
+  title           String
+  materialText    String?
+  materialImage   String?
+  tagId           Int?
+  packageId       Int?
+  categories      Category[]
+  tag             Tag?     @relation(fields: [tagId], references: [id])
+  package         ModulePackage? @relation(fields: [packageId], references: [id])
+  createdAt       DateTime @default(now())
+  updatedAt       DateTime @updatedAt
+}
+
+model ModulePackage {
+  id              Int      @id @default(autoincrement())
+  uuid            String   @unique
+  title           String
+  description     String?
+  price           Int
+  durationInMonth Int
+  categories      Category[]
+  packagePurchases PackagePurchase[]
+  quizzes         Quiz[]
+  materials       Material[]
+  createdAt       DateTime @default(now())
+  updatedAt       DateTime @updatedAt
+}
+
+model User {
+  id                   Int      @id @default(autoincrement())
+  uuid                 String   @unique
+  name                 String
+  email                String   @unique
+  password             String
+  phone                String?  @unique
+  verifiedAt           DateTime?
+  verifyToken          String?
+  tokenForgotPassword  String?
+  roleId               Int?
+  role                 Role?     @relation(fields: [roleId], references: [id])
+  address              Address?
+  userAnswers          UserAnswer[]
+  userBadge            UserBadge?
+  packagePurchases     PackagePurchase[]
+  notifications        Notification[]
+  quizAttempt          QuizAttempt[]
+  questions            Question[]
+  quizzes              Quiz[]
+  blogPosts            BlogPost[]
+  createdAt            DateTime  @default(now())
+  updatedAt            DateTime  @updatedAt
+}
+
+model Role {
+  id          Int      @id @default(autoincrement())
+  uuid        String   @unique
+  name        String
+  value       String   @unique
+  users       User[]
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+}
+
+model Quiz {
+  id          Int      @id @default(autoincrement())
+  uuid        String   @unique
+  title       String
+  description String?
+  tagId       Int?
+  moduleId    Int?
+  createBy    Int?
+  categories  Category[]
+  quizAttempt QuizAttempt[]
+  questions   Question[]
+  tag         Tag?      @relation(fields: [tagId], references: [id])
+  module      ModulePackage? @relation(fields: [moduleId], references: [id])
+  user        User?    @relation(fields: [createBy], references: [id])
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+}
+
+model Question {
+  id              Int      @id @default(autoincrement())
+  uuid            String   @unique
+  questionText    String?
+  questionImage   String?
+  points          Int      @default(1)
+  categories      Category[]
+  quizId          Int?
+  createBy        Int?
+  explanation     QuestionExplanation?
+  quiz            Quiz?    @relation(fields: [quizId], references: [id])
+  user            User?    @relation(fields: [createBy], references: [id])
+  userAnswers     UserAnswer[]
+  options         QuestionOption[]
+  createdAt       DateTime @default(now())
+  updatedAt       DateTime @updatedAt
+}
+
+model QuestionOption {
+  id          Int      @id @default(autoincrement())
+  uuid        String   @unique
+  optionText  String?
+  optionImage String?
+  isCorrect   Boolean
+  questionId  Int?
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+  question    Question? @relation(fields: [questionId], references: [id])
+  userAnswers UserAnswer[]
+}
+
+model QuestionExplanation {
+  id              Int      @id @default(autoincrement())
+  uuid            String   @unique
+  explanationText String?
+  explanationImage String?
+  questionId      Int?      @unique
+  question        Question? @relation(fields: [questionId], references: [id])
+  createdAt       DateTime @default(now())
+  updatedAt       DateTime @updatedAt
+}
+
+model QuizAttempt {
+  id          Int      @id @default(autoincrement())
+  uuid        String   @unique
+  score       Int      @default(0)
+  completedAt DateTime
+  userId      Int?
+  quizId      Int?
+  user        User?    @relation(fields: [userId], references: [id])
+  quiz        Quiz?    @relation(fields: [quizId], references: [id])
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+}
+
+model Notification {
+  id          Int      @id @default(autoincrement())
+  uuid        String   @unique
+  title       String?
+  content     String
+  image       String?
+  userId      Int?
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+  user        User?    @relation(fields: [userId], references: [id])
+}
+
+model Transaction {
+  id                  Int      @id @default(autoincrement())
+  uuid                String   @unique
+  amount              Int
+  purchaseAt         DateTime
+  packagePurchaseId   Int?
+  statusId           Int?
+  transactionId      String
+  packagePurchase    PackagePurchase? @relation(fields: [packagePurchaseId], references: [id])
+  status             TransactionStatus? @relation(fields: [statusId], references: [id])
+  createdAt          DateTime   @default(now())
+  updatedAt          DateTime   @ default(now())
+}
+
+model TransactionStatus {
+  id          Int      @id @default(autoincrement())
+  uuid        String   @unique
+  title       String
+  value       String   @unique
+  transactions Transaction[]
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+}
+
+model PackagePurchase {
+  id          Int      @id @default(autoincrement())
+  uuid        String   @unique
+  isActive    Boolean  @default(false)
+  expiredAt   DateTime
+  packageId   Int?
+  userId      Int?
+  package     ModulePackage? @relation(fields: [packageId], references: [id])
+  user        User?    @relation(fields: [userId], references: [id])
+  transactions Transaction[]
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+}
+
+model UserBadge {
+  id          Int      @id @default(autoincrement())
+  uuid        String   @unique
+  awardedAt   DateTime
+  badgeId     Int?
+  userId      Int?     @unique
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+  badge       Badge?   @relation(fields: [badgeId], references: [id])
+  user        User?    @relation(fields: [userId], references: [id])
+} 
+
+model UserAnswer {
+  id          Int      @id @default(autoincrement())
+  uuid        String   @unique
+  isCorrect   Boolean
+  answeredAt  DateTime
+  user        User?    @relation(fields: [userId], references: [id])
+  question    Question? @relation(fields: [questionId], references: [id])
+  option      QuestionOption? @relation(fields: [optionId], references: [id])
+  userId      Int?
+  questionId  Int?
+  optionId    Int?
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+}
