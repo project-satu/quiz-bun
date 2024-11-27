@@ -18,3 +18,9 @@ export class CreateModulePackageDto {
   @IsInt()
   durationInMonth: number;
 }
+
+export class ModulePackageUuidDto {
+  @ApiProperty()
+  @IsString()
+  uuid: string;
+}

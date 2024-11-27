@@ -1,3 +1,4 @@
+import { ModulePackageUuidDto } from "@/modules/module-package/dto/module-package.dto";
 import { ApiProperty } from "@nestjs/swagger";
 import { IsArray, IsBoolean, IsInt, IsObject, IsString } from "class-validator";
 
@@ -22,7 +23,7 @@ export class CreateQuestionOptionDto {
 
   @ApiProperty()
   @IsBoolean()
-  isCorrect: boolean
+  isCorrect?: boolean
 }
 
 export class CreateQuestionDto {
@@ -37,27 +38,37 @@ export class CreateQuestionDto {
 
   @ApiProperty()
   @IsInt()
-  points: number
+  points?: number
 
   @ApiProperty({ type: CreateQuestionOptionDto })
   @IsArray()
-  questionOptions: CreateQuestionOptionDto[]
+  questionOptions?: CreateQuestionOptionDto[]
 
   @ApiProperty()
   @IsObject()
-  questionExplanation: CreateQuestionExplanationDto
+  questionExplanation?: CreateQuestionExplanationDto
 }
 
 export class CreateQuizDto {
   @ApiProperty()
   @IsString()
-  title: string;
+  title?: string;
 
   @ApiProperty()
   @IsString()
-  description: string;
+  description?: string;
+
+  @ApiProperty({ type: ModulePackageUuidDto })
+  @IsObject()
+  modulePackage?: ModulePackageUuidDto;
 
   @ApiProperty({ type: CreateQuestionDto })
   @IsArray()
-  questions: CreateQuestionDto[]
+  questions?: CreateQuestionDto[]
+}
+
+export class UpdateQuizDto extends CreateQuizDto {
+  @ApiProperty()
+  @IsString()
+  uuid: string
 }

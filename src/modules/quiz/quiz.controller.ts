@@ -1,8 +1,6 @@
-import { Body, Controller, Get, Post, Query, Req, UseGuards } from '@nestjs/common';
+import { Body, Controller, Get, Post, Put, Query } from '@nestjs/common';
 import { QuizService } from './quiz.service';
-import { CreateQuizDto } from './dto/quiz.dto';
-import { Request } from 'express';
-import { ApiBearerAuth } from '@nestjs/swagger';
+import { CreateQuizDto, UpdateQuizDto } from './dto/quiz.dto';
 import { successResponse, errorResponse } from '@/utils/helpers/response.helper';
 import { Filter } from '@/common/dto.common';
 
@@ -29,6 +27,18 @@ export class QuizController {
   async create(@Body() quizDto: CreateQuizDto) {
     try {
       const data = await this.quizService.create(quizDto);
+
+      return successResponse({ data })
+    } catch (error) {
+      console.log(error);
+      return errorResponse(error.message, error.status);
+    }
+  }
+
+  @Put('quiz')
+  async update(@Body() dto: UpdateQuizDto) {
+    try {
+      const data = await this.quizService.update(dto);
 
       return successResponse({ data })
     } catch (error) {
