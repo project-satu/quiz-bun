@@ -1,6 +1,6 @@
 import { Injectable } from '@nestjs/common';
 import { PrismaService } from 'src/config/prisma.config';
-import { CreateModulePackageDto } from './dto/module-package.dto';
+import { CreateModulePackageDto, UpdateModulePackageDto } from './dto/module-package.dto';
 import { v4 as uuidv4 } from 'uuid';
 import { Filter } from '@/common/dto.common';
 import { errorResponse } from '@/utils/helpers/response.helper';
@@ -33,6 +33,15 @@ export class ModulePackageService {
               uuid: true,
               title: true,
               description: true,
+            }
+          },
+          categories: {
+            select: {
+              id: true,
+              uuid: true,
+              title: true,
+              value: true,
+              type: true
             }
           }
         }
@@ -86,12 +95,19 @@ export class ModulePackageService {
       title,
       description,
       price,
-      durationInMonth
+      durationInMonth,
+      categories
     } = dto;
 
     if (price <= 0) return errorResponse('Price must be greater than 0');
 
     if (durationInMonth <= 0) return errorResponse('Duration must be greater than 0');
+
+    const foundCategory = await Promise.all(categories.map(
+      async (category: { uuid: string }) => await this.prisma.category.findFirst({ where: { uuid: category.uuid } })
+    ));
+
+    if (!foundCategory) return errorResponse('Category not found');
 
     const modulePackage = await this.prisma.modulePackage.create({
       data: {
@@ -99,6 +115,43 @@ export class ModulePackageService {
         description,
         price,
         durationInMonth,
+        categories: {
+          connect: foundCategory
+        }
+      }
+    });
+
+    return modulePackage;
+  }
+
+  async update(dto: UpdateModulePackageDto): Promise<any> {
+    const {
+      uuid,
+      title,
+      description,
+      price,
+      durationInMonth,
+      categories
+    } = dto;
+
+    if (price <= 0) return errorResponse('Price must be greater than 0');
+
+    if (durationInMonth <= 0) return errorResponse('Duration must be greater than 0');
+
+    const foundCategory = categories ? await Promise.all(categories.map(
+      async (category: { uuid: string }) => await this.prisma.category.findFirst({ where: { uuid: category.uuid } })
+    )) : undefined;
+
+    const modulePackage = await this.prisma.modulePackage.update({
+      where: { uuid },
+      data: {
+        title: title ? title : undefined,
+        description: description ? description : undefined,
+        price: price ? price : undefined,
+        durationInMonth: durationInMonth ? durationInMonth : undefined,
+        categories: foundCategory ? {
+          connect: foundCategory
+        } : undefined
       }
     });
 

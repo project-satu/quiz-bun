@@ -1,8 +1,8 @@
-import { Body, Controller, Get, Post, Query } from '@nestjs/common';
+import { Body, Controller, Get, Post, Put, Query } from '@nestjs/common';
 import { successResponse, errorResponse } from '@/utils/helpers/response.helper';
 import { Filter } from '@/common/dto.common';
 import { ModulePackageService } from './module-package.service';
-import { CreateModulePackageDto } from './dto/module-package.dto';
+import { CreateModulePackageDto, UpdateModulePackageDto } from './dto/module-package.dto';
 
 // @ApiBearerAuth('access-token')
 @Controller()
@@ -28,6 +28,17 @@ export class ModulePackageController {
     try {
       const data = await this.modulePackageService.create(dto);
 
+      return successResponse({ data })
+    } catch (error) {
+      console.log(error);
+      return errorResponse(error.message, error.status);
+    }
+  }
+
+  @Put('module-package')
+  async update(@Body() dto: UpdateModulePackageDto) {
+    try {
+      const data = await this.modulePackageService.update(dto);
       return successResponse({ data })
     } catch (error) {
       console.log(error);

@@ -1,5 +1,6 @@
+import { CategoryUuidDto } from "@/modules/category/dto/category.dto";
 import { ApiProperty } from "@nestjs/swagger";
-import { IsInt, IsString } from "class-validator";
+import { IsArray, IsInt, IsString } from "class-validator";
 
 export class CreateModulePackageDto {
   @ApiProperty()
@@ -17,9 +18,19 @@ export class CreateModulePackageDto {
   @ApiProperty()
   @IsInt()
   durationInMonth: number;
+
+  @ApiProperty({ type: [CategoryUuidDto] })
+  @IsArray()
+  categories: CategoryUuidDto[]
 }
 
 export class ModulePackageUuidDto {
+  @ApiProperty()
+  @IsString()
+  uuid: string;
+}
+
+export class UpdateModulePackageDto extends CreateModulePackageDto {
   @ApiProperty()
   @IsString()
   uuid: string;
