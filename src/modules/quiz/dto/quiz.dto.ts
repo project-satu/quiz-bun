@@ -27,7 +27,6 @@ export class CreateQuestionOptionDto {
 }
 
 export class CreateQuestionDto {
-  [x: string]: any;
   @ApiProperty()
   @IsString()
   questionText?: string
@@ -40,7 +39,7 @@ export class CreateQuestionDto {
   @IsInt()
   points?: number
 
-  @ApiProperty({ type: CreateQuestionOptionDto })
+  @ApiProperty({ type: [CreateQuestionOptionDto] })
   @IsArray()
   questionOptions?: CreateQuestionOptionDto[]
 
@@ -62,9 +61,9 @@ export class CreateQuizDto {
   @IsObject()
   modulePackage?: ModulePackageUuidDto;
 
-  @ApiProperty({ type: CreateQuestionDto })
+  @ApiProperty({ type: [CreateQuestionDto] })
   @IsArray()
-  questions?: CreateQuestionDto[]
+  questions: CreateQuestionDto[]
 }
 
 export class UpdateQuizDto extends CreateQuizDto {

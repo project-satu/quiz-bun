@@ -212,7 +212,6 @@ export class QuizService {
         description,
         moduleId: module ? module?.id : undefined,
         questions: questions ? {
-          deleteMany: { id: { in: questions?.map(question => question?.id) } },
           create: questions ? questions?.map(question => ({
             data: {
               questionText: question?.questionText ? question?.questionText : undefined,
