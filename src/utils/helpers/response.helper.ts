@@ -17,3 +17,12 @@ export const errorResponse = (message = 'internal server error', statusCode = 50
     message: message,
   }, statusCode)
 }
+
+export function valueExists(data: any, dataExists: any) {
+  const existingValues = new Set(dataExists.map(cat => cat.value));
+  const newData = data.filter(item => !existingValues.has(item.value));
+
+  if (newData.length === 0) {
+    throw new Error('Values already existing');
+  }
+}
