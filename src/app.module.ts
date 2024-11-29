@@ -5,9 +5,13 @@ import { ModulePackageModule } from './modules/module-package/module-package.mod
 import { QuizModule } from './modules/quiz/quiz.module';
 import { CategoryModule } from './modules/category/category.module';
 import { MaterialModule } from './modules/material/material.module';
+import { UserModule } from './modules/user/user.module';
+import { AuthModule } from './modules/auth/auth.module';
 
 @Module({
   imports: [
+    AuthModule,
+    UserModule,
     CategoryModule,
     ModulePackageModule,
     MaterialModule,
@@ -16,4 +20,4 @@ import { MaterialModule } from './modules/material/material.module';
   controllers: [AppController],
   providers: [AppService],
 })
-export class AppModule { }
+export class AppModule {}
