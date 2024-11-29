@@ -6,9 +6,7 @@ import { errorResponse } from '@/utils/helpers/response.helper';
 
 @Injectable()
 export class QuizService {
-  constructor(
-    private prisma: PrismaService
-  ) { }
+  constructor(private prisma: PrismaService) {}
 
   async findAll(): Promise<any> {
     return await this.prisma.quiz.findMany({
@@ -26,18 +24,18 @@ export class QuizService {
               select: {
                 optionText: true,
                 optionImage: true,
-                isCorrect: true
-              }
+                isCorrect: true,
+              },
             },
             explanation: {
               select: {
                 explanationText: true,
-                explanationImage: true
-              }
-            }
-          }
-        }
-      }
+                explanationImage: true,
+              },
+            },
+          },
+        },
+      },
     });
   }
 
@@ -64,21 +62,21 @@ export class QuizService {
                 select: {
                   optionText: true,
                   optionImage: true,
-                  isCorrect: true
-                }
+                  isCorrect: true,
+                },
               },
               explanation: {
                 select: {
                   explanationText: true,
-                  explanationImage: true
-                }
-              }
-            }
-          }
-        }
+                  explanationImage: true,
+                },
+              },
+            },
+          },
+        },
       }),
-      this.prisma.quiz.count()
-    ])
+      this.prisma.quiz.count(),
+    ]);
     console.log(quizzes, total);
     const last_page = Math.ceil(total / per_page);
     const from = skip + 1;
@@ -116,28 +114,23 @@ export class QuizService {
               select: {
                 optionText: true,
                 optionImage: true,
-                isCorrect: true
-              }
+                isCorrect: true,
+              },
             },
             explanation: {
               select: {
                 explanationText: true,
-                explanationImage: true
-              }
-            }
-          }
-        }
-      }
+                explanationImage: true,
+              },
+            },
+          },
+        },
+      },
     });
   }
 
   async create(quizDto: CreateQuizDto): Promise<any> {
-    const {
-      title,
-      description,
-      modulePackage,
-      questions
-    } = quizDto;
+    const { title, description, modulePackage, questions } = quizDto;
 
     const module = await this.prisma.modulePackage.findFirst({
       where: { uuid: modulePackage.uuid },
@@ -151,59 +144,56 @@ export class QuizService {
         description,
         moduleId: module.id,
         questions: {
-          create: questions.map(question => ({
+          create: questions.map((question) => ({
             questionText: question.questionText,
             questionImage: question.questionImage,
             points: question.points,
             options: {
-              create: question.questionOptions.map((
-                option: {
+              create: question.questionOptions.map(
+                (option: {
                   optionText: string;
                   optionImage: string;
-                  isCorrect: boolean
-                }
-              ) => ({
-                optionText: option.optionText,
-                optionImage: option.optionImage,
-                isCorrect: option.isCorrect
-              }))
+                  isCorrect: boolean;
+                }) => ({
+                  optionText: option.optionText,
+                  optionImage: option.optionImage,
+                  isCorrect: option.isCorrect,
+                }),
+              ),
             },
             explanation: {
               create: {
                 explanationText: question.questionExplanation.explanationText,
-                explanationImage: question.questionExplanation.explanationImage
-              }
-            }
-          }))
-        }
+                explanationImage: question.questionExplanation.explanationImage,
+              },
+            },
+          })),
+        },
       },
       include: {
         questions: {
           include: {
             options: true,
-            explanation: true
-          }
-        }
-      }
+            explanation: true,
+          },
+        },
+      },
     });
 
     return quiz;
   }
 
   async update(dto: UpdateQuizDto): Promise<any> {
-    const {
-      uuid,
-      title,
-      description,
-      modulePackage,
-      questions
-    } = dto
+    const { uuid, title, description, modulePackage, questions } = dto;
 
-    const module = modulePackage?.uuid ? await this.prisma.modulePackage.findFirst({
-      where: { uuid: modulePackage.uuid },
-    }) : undefined;
+    const module = modulePackage?.uuid
+      ? await this.prisma.modulePackage.findFirst({
+          where: { uuid: modulePackage.uuid },
+        })
+      : undefined;
 
-    if (modulePackage?.uuid && !module) return errorResponse('Module package not found');
+    if (modulePackage?.uuid && !module)
+      return errorResponse('Module package not found');
 
     const quiz = await this.prisma.quiz.update({
       where: { uuid },
@@ -211,58 +201,72 @@ export class QuizService {
         title,
         description,
         moduleId: module ? module?.id : undefined,
-        questions: questions ? {
-          create: questions ? questions?.map(question => ({
-            data: {
-              questionText: question?.questionText ? question?.questionText : undefined,
-              questionImage: question?.questionImage ? question?.questionImage : undefined,
-              points: question?.points ? question?.points : undefined,
-              options: question?.questionOptions ? {
-                deleteMany: {
-                  id: {
-                    in: quiz?.questions?.map((
-                      question: {
-                        options: any[];
-                      }) => question?.options?.map(
-                        option => option?.id
-                      )
-                    )
-                  }
-                },
-                create: question?.questionOptions?.map((
-                  option: {
-                    optionText: string;
-                    optionImage: string;
-                    isCorrect: boolean
-                  }
-                ) => ({
-                  data: {
-                    optionText: option?.optionText,
-                    optionImage: option?.optionImage,
-                    isCorrect: option?.isCorrect
-                  }
-                }))
-              } : undefined,
-              explanation: question?.questionExplanation?.explanationText ? {
-                delete: true,
-                create: {
-                  explanationText: question?.questionExplanation?.explanationText,
-                  explanationImage: question?.questionExplanation?.explanationImage
-                }
-              } : undefined
+        questions: questions
+          ? {
+              create: questions
+                ? questions?.map((question) => ({
+                    data: {
+                      questionText: question?.questionText
+                        ? question?.questionText
+                        : undefined,
+                      questionImage: question?.questionImage
+                        ? question?.questionImage
+                        : undefined,
+                      points: question?.points ? question?.points : undefined,
+                      options: question?.questionOptions
+                        ? {
+                            deleteMany: {
+                              id: {
+                                in: quiz?.questions?.map(
+                                  (question: { options: any[] }) =>
+                                    question?.options?.map(
+                                      (option) => option?.id,
+                                    ),
+                                ),
+                              },
+                            },
+                            create: question?.questionOptions?.map(
+                              (option: {
+                                optionText: string;
+                                optionImage: string;
+                                isCorrect: boolean;
+                              }) => ({
+                                data: {
+                                  optionText: option?.optionText,
+                                  optionImage: option?.optionImage,
+                                  isCorrect: option?.isCorrect,
+                                },
+                              }),
+                            ),
+                          }
+                        : undefined,
+                      explanation: question?.questionExplanation
+                        ?.explanationText
+                        ? {
+                            delete: true,
+                            create: {
+                              explanationText:
+                                question?.questionExplanation?.explanationText,
+                              explanationImage:
+                                question?.questionExplanation?.explanationImage,
+                            },
+                          }
+                        : undefined,
+                    },
+                  }))
+                : undefined,
             }
-          })) : undefined
-        } : undefined
+          : undefined,
       },
       include: {
         module: true,
         questions: {
           include: {
             options: true,
-            explanation: true
-          }
-        }
-      }
+            explanation: true,
+          },
+        },
+      },
     });
 
     return quiz;
