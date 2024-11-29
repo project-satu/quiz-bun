@@ -3,6 +3,7 @@ import { successResponse, errorResponse } from '@/utils/helpers/response.helper'
 import { Filter } from '@/common/dto.common';
 import { CategoryService } from './category.service';
 import { BulkCreateCategoryDto, CreateCategoryDto } from './dto/category.dto';
+import { ApiParam } from '@nestjs/swagger';
 
 // @ApiBearerAuth('access-token')
 @Controller()
@@ -17,6 +18,18 @@ export class CategoryController {
       const data = await this.categoryService.getCategories(params);
 
       return successResponse({ data, isPaginate: true });
+    } catch (error) {
+      console.log(error);
+      return errorResponse(error.message, error.status);
+    }
+  }
+
+  @Get('category')
+  @ApiParam({ name: 'uuid', type: 'string' })
+  async findOne(@Query() params: string) {
+    try {
+      const data = await this.categoryService.findOne(params);
+      return successResponse({ data });
     } catch (error) {
       console.log(error);
       return errorResponse(error.message, error.status);

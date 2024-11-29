@@ -39,7 +39,7 @@ export class MaterialService {
         }
       }),
 
-      this.prisma.category.count()
+      this.prisma.material.count()
     ])
 
     const last_page = Math.ceil(total / per_page);

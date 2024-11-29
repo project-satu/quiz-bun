@@ -5,10 +5,12 @@ import { ModulePackageModule } from './modules/module-package/module-package.mod
 import { QuizModule } from './modules/quiz/quiz.module';
 import { CategoryModule } from './modules/category/category.module';
 import { MaterialModule } from './modules/material/material.module';
+import { TagModule } from './modules/tag/tag.module';
 
 @Module({
   imports: [
     CategoryModule,
+    TagModule,
     ModulePackageModule,
     MaterialModule,
     QuizModule,
