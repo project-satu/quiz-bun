@@ -16,7 +16,7 @@ model Address {
   user        User?    @relation(fields: [userId], references: [id])
   city        City?    @relation(fields: [cityId], references: [id])
   createdAt   DateTime @default(now())
-  updatedAt   DateTime @updatedAt
+  updatedAt   DateTime @default(now())
 }
 
 model Badge {
@@ -30,7 +30,7 @@ model Badge {
   requiredPoints  Int      @default(0)
   userBadge       UserBadge[]
   createdAt       DateTime @default(now())
-  updatedAt       DateTime @updatedAt
+  updatedAt       DateTime @default(now())
 }
 
 model BlogPost {
@@ -42,7 +42,7 @@ model BlogPost {
   authorId    Int?
   categories  Category[]
   createdAt   DateTime @default(now())
-  updatedAt   DateTime @updatedAt
+  updatedAt   DateTime @default(now())
   author      User?    @relation(fields: [authorId], references: [id])
 }
 
@@ -55,7 +55,7 @@ model CarouselBanner {
   link        String?
   isActive    Boolean  @default(true)
   createdAt   DateTime @default(now())
-  updatedAt   DateTime @updatedAt
+  updatedAt   DateTime @default(now())
 }
 
 model Category {
@@ -71,7 +71,7 @@ model Category {
   blogPosts       BlogPost[]
   tags            Tag[]
   createdAt       DateTime @default(now())
-  updatedAt       DateTime @updatedAt
+  updatedAt       DateTime @default(now())
 }
 
 model Tag {
@@ -88,7 +88,7 @@ model Tag {
   quizzes     Quiz[]
   materials   Material[]
   createdAt   DateTime @default(now())
-  updatedAt   DateTime @updatedAt
+  updatedAt   DateTime @default(now())
 }
 
 model City {
@@ -100,7 +100,7 @@ model City {
   province        Province? @relation(fields: [provinceId], references: [id])
   addresses       Address[]
   createdAt       DateTime @default(now())
-  updatedAt       DateTime @updatedAt
+  updatedAt       DateTime @default(now())
 }
 
 model Province {
@@ -111,7 +111,7 @@ model Province {
   value             Int      @unique
   cities            City[]
   createdAt         DateTime @default(now())
-  updatedAt         DateTime @updatedAt
+  updatedAt         DateTime @default(now())
 }
 
 model Event {
@@ -123,7 +123,7 @@ model Event {
   isActive    Boolean  @default(true)
   eventDate   DateTime
   createdAt   DateTime @default(now())
-  updatedAt   DateTime @updatedAt
+  updatedAt   DateTime @default(now())
 }
 
 model Material {
@@ -138,7 +138,7 @@ model Material {
   tag             Tag?     @relation(fields: [tagId], references: [id])
   package         ModulePackage? @relation(fields: [packageId], references: [id])
   createdAt       DateTime @default(now())
-  updatedAt       DateTime @updatedAt
+  updatedAt       DateTime @default(now())
 }
 
 model ModulePackage {
@@ -153,7 +153,7 @@ model ModulePackage {
   quizzes         Quiz[]
   materials       Material[]
   createdAt       DateTime @default(now())
-  updatedAt       DateTime @updatedAt
+  updatedAt       DateTime @default(now())
 }
 
 model User {
@@ -178,7 +178,7 @@ model User {
   quizzes              Quiz[]
   blogPosts            BlogPost[]
   createdAt            DateTime  @default(now())
-  updatedAt            DateTime  @updatedAt
+  updatedAt            DateTime  @default(now())
 }
 
 model Role {
@@ -188,7 +188,7 @@ model Role {
   value       String   @unique
   users       User[]
   createdAt   DateTime @default(now())
-  updatedAt   DateTime @updatedAt
+  updatedAt   DateTime @default(now())
 }
 
 model Quiz {
@@ -206,7 +206,7 @@ model Quiz {
   module      ModulePackage? @relation(fields: [moduleId], references: [id])
   user        User?    @relation(fields: [createBy], references: [id])
   createdAt   DateTime @default(now())
-  updatedAt   DateTime @updatedAt
+  updatedAt   DateTime @default(now())
 }
 
 model Question {
@@ -224,7 +224,7 @@ model Question {
   userAnswers     UserAnswer[]
   options         QuestionOption[]
   createdAt       DateTime @default(now())
-  updatedAt       DateTime @updatedAt
+  updatedAt       DateTime @default(now())
 }
 
 model QuestionOption {
@@ -235,7 +235,7 @@ model QuestionOption {
   isCorrect   Boolean
   questionId  Int?
   createdAt   DateTime @default(now())
-  updatedAt   DateTime @updatedAt
+  updatedAt   DateTime @default(now())
   question    Question? @relation(fields: [questionId], references: [id])
   userAnswers UserAnswer[]
 }
@@ -248,7 +248,7 @@ model QuestionExplanation {
   questionId      Int?      @unique
   question        Question? @relation(fields: [questionId], references: [id])
   createdAt       DateTime @default(now())
-  updatedAt       DateTime @updatedAt
+  updatedAt       DateTime @default(now())
 }
 
 model QuizAttempt {
@@ -261,7 +261,7 @@ model QuizAttempt {
   user        User?    @relation(fields: [userId], references: [id])
   quiz        Quiz?    @relation(fields: [quizId], references: [id])
   createdAt   DateTime @default(now())
-  updatedAt   DateTime @updatedAt
+  updatedAt   DateTime @default(now())
 }
 
 model Notification {
@@ -272,7 +272,7 @@ model Notification {
   image       String?
   userId      Int?
   createdAt   DateTime @default(now())
-  updatedAt   DateTime @updatedAt
+  updatedAt   DateTime @default(now())
   user        User?    @relation(fields: [userId], references: [id])
 }
 
@@ -297,7 +297,7 @@ model TransactionStatus {
   value       String   @unique
   transactions Transaction[]
   createdAt   DateTime @default(now())
-  updatedAt   DateTime @updatedAt
+  updatedAt   DateTime @default(now())
 }
 
 model PackagePurchase {
@@ -311,7 +311,7 @@ model PackagePurchase {
   user        User?    @relation(fields: [userId], references: [id])
   transactions Transaction[]
   createdAt   DateTime @default(now())
-  updatedAt   DateTime @updatedAt
+  updatedAt   DateTime @default(now())
 }
 
 model UserBadge {
@@ -321,7 +321,7 @@ model UserBadge {
   badgeId     Int?
   userId      Int?     @unique
   createdAt   DateTime @default(now())
-  updatedAt   DateTime @updatedAt
+  updatedAt   DateTime @default(now())
   badge       Badge?   @relation(fields: [badgeId], references: [id])
   user        User?    @relation(fields: [userId], references: [id])
 } 
@@ -338,5 +338,5 @@ model UserAnswer {
   questionId  Int?
   optionId    Int?
   createdAt   DateTime @default(now())
-  updatedAt   DateTime @updatedAt
+  updatedAt   DateTime @default(now())
 }
