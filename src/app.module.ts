@@ -7,12 +7,14 @@ import { CategoryModule } from './modules/category/category.module';
 import { MaterialModule } from './modules/material/material.module';
 import { UserModule } from './modules/user/user.module';
 import { AuthModule } from './modules/auth/auth.module';
+import { TagModule } from './modules/tag/tag.module';
 
 @Module({
   imports: [
     AuthModule,
     UserModule,
     CategoryModule,
+    TagModule,
     ModulePackageModule,
     MaterialModule,
     QuizModule,
@@ -20,4 +22,4 @@ import { AuthModule } from './modules/auth/auth.module';
   controllers: [AppController],
   providers: [AppService],
 })
-export class AppModule {}
+export class AppModule { }

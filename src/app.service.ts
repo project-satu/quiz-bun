@@ -1,8 +1,9 @@
 import { Injectable } from '@nestjs/common';
+import * as dayjs from 'dayjs';
 
 @Injectable()
 export class AppService {
-  getHello(): string {
-    return 'Hello World!';
+  getHello(): number {
+    return dayjs().unix();
   }
 }
