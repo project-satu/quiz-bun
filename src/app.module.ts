@@ -8,6 +8,7 @@ import { MaterialModule } from './modules/material/material.module';
 import { UserModule } from './modules/user/user.module';
 import { AuthModule } from './modules/auth/auth.module';
 import { TagModule } from './modules/tag/tag.module';
+import { QuestionModule } from './modules/question/question.module';
 
 @Module({
   imports: [
@@ -18,6 +19,7 @@ import { TagModule } from './modules/tag/tag.module';
     ModulePackageModule,
     MaterialModule,
     QuizModule,
+    QuestionModule
   ],
   controllers: [AppController],
   providers: [AppService],
