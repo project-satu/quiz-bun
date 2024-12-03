@@ -1,5 +1,5 @@
 import { ApiProperty } from "@nestjs/swagger";
-import { IsInt, IsOptional } from "class-validator";
+import { IsInt, IsOptional, IsString } from "class-validator";
 import { Type } from "class-transformer";
 
 export class Filter {
@@ -14,4 +14,10 @@ export class Filter {
   @Type(() => Number)
   @IsInt()
   per_page?: number;
+}
+
+export class UuidDto {
+  @ApiProperty({ description: 'uuid', required: true })
+  @IsString()
+  uuid: string;
 }
