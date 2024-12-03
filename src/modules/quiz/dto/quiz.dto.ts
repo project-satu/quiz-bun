@@ -1,52 +1,7 @@
 import { ModulePackageUuidDto } from "@/modules/module-package/dto/module-package.dto";
+import { CreateQuestionDto } from "@/modules/question/dto/question.dto";
 import { ApiProperty } from "@nestjs/swagger";
-import { IsArray, IsBoolean, IsInt, IsObject, IsString } from "class-validator";
-
-export class CreateQuestionExplanationDto {
-  @ApiProperty()
-  @IsString()
-  explanationText?: string
-
-  @ApiProperty()
-  @IsString()
-  explanationImage?: string
-}
-
-export class CreateQuestionOptionDto {
-  @ApiProperty()
-  @IsString()
-  optionText?: string;
-
-  @ApiProperty()
-  @IsString()
-  optionImage?: string;
-
-  @ApiProperty()
-  @IsBoolean()
-  isCorrect?: boolean
-}
-
-export class CreateQuestionDto {
-  @ApiProperty()
-  @IsString()
-  questionText?: string
-
-  @ApiProperty()
-  @IsString()
-  questionImage?: string
-
-  @ApiProperty()
-  @IsInt()
-  points?: number
-
-  @ApiProperty({ type: [CreateQuestionOptionDto] })
-  @IsArray()
-  questionOptions?: CreateQuestionOptionDto[]
-
-  @ApiProperty()
-  @IsObject()
-  questionExplanation?: CreateQuestionExplanationDto
-}
+import { IsArray, IsObject, IsString } from "class-validator";
 
 export class CreateQuizDto {
   @ApiProperty()

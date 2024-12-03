@@ -28,7 +28,7 @@ export class QuizController {
     try {
       const data = await this.quizService.findOne(param, filter);
 
-      return successResponse({ data });
+      return successResponse({ data, isPaginate: true });
     } catch (error) {
       console.log(error);
       return errorResponse(error.message, error.status);
