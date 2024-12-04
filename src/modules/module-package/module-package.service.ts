@@ -1,15 +1,15 @@
 import { Injectable } from '@nestjs/common';
 import { PrismaService } from 'src/config/prisma.config';
-import { CreateModulePackageDto, UpdateModulePackageDto } from './dto/module-package.dto';
-import { v4 as uuidv4 } from 'uuid';
+import {
+  CreateModulePackageDto,
+  UpdateModulePackageDto,
+} from './dto/module-package.dto';
 import { Filter } from '@/common/dto.common';
 import { errorResponse } from '@/utils/helpers/response.helper';
 
 @Injectable()
 export class ModulePackageService {
-  constructor(
-    private prisma: PrismaService
-  ) { }
+  constructor(private prisma: PrismaService) {}
 
   async getModulePackages(params: Filter): Promise<any> {
     const page = Number(params.page) || 1;
@@ -33,7 +33,7 @@ export class ModulePackageService {
               uuid: true,
               title: true,
               description: true,
-            }
+            },
           },
           categories: {
             select: {
@@ -41,13 +41,13 @@ export class ModulePackageService {
               uuid: true,
               title: true,
               value: true,
-              type: true
-            }
-          }
-        }
+              type: true,
+            },
+          },
+        },
       }),
-      this.prisma.modulePackage.count()
-    ])
+      this.prisma.modulePackage.count(),
+    ]);
 
     const last_page = Math.ceil(total / per_page);
     const from = skip + 1;
@@ -84,28 +84,28 @@ export class ModulePackageService {
             uuid: true,
             title: true,
             description: true,
-          }
-        }
-      }
+          },
+        },
+      },
     });
   }
 
   async create(dto: CreateModulePackageDto): Promise<any> {
-    const {
-      title,
-      description,
-      price,
-      durationInMonth,
-      categories
-    } = dto;
+    const { title, description, price, durationInMonth, categories } = dto;
 
     if (price <= 0) return errorResponse('Price must be greater than 0');
 
-    if (durationInMonth <= 0) return errorResponse('Duration must be greater than 0');
+    if (durationInMonth <= 0)
+      return errorResponse('Duration must be greater than 0');
 
-    const foundCategory = await Promise.all(categories.map(
-      async (category: { uuid: string }) => await this.prisma.category.findFirst({ where: { uuid: category.uuid } })
-    ));
+    const foundCategory = await Promise.all(
+      categories.map(
+        async (category: { uuid: string }) =>
+          await this.prisma.category.findFirst({
+            where: { uuid: category.uuid },
+          }),
+      ),
+    );
 
     if (!foundCategory) return errorResponse('Category not found');
 
@@ -116,31 +116,33 @@ export class ModulePackageService {
         price,
         durationInMonth,
         categories: {
-          connect: foundCategory
-        }
-      }
+          connect: foundCategory,
+        },
+      },
     });
 
     return modulePackage;
   }
 
   async update(dto: UpdateModulePackageDto): Promise<any> {
-    const {
-      uuid,
-      title,
-      description,
-      price,
-      durationInMonth,
-      categories
-    } = dto;
+    const { uuid, title, description, price, durationInMonth, categories } =
+      dto;
 
     if (price <= 0) return errorResponse('Price must be greater than 0');
 
-    if (durationInMonth <= 0) return errorResponse('Duration must be greater than 0');
+    if (durationInMonth <= 0)
+      return errorResponse('Duration must be greater than 0');
 
-    const foundCategory = categories ? await Promise.all(categories.map(
-      async (category: { uuid: string }) => await this.prisma.category.findFirst({ where: { uuid: category.uuid } })
-    )) : undefined;
+    const foundCategory = categories
+      ? await Promise.all(
+          categories.map(
+            async (category: { uuid: string }) =>
+              await this.prisma.category.findFirst({
+                where: { uuid: category.uuid },
+              }),
+          ),
+        )
+      : undefined;
 
     const modulePackage = await this.prisma.modulePackage.update({
       where: { uuid },
@@ -149,10 +151,12 @@ export class ModulePackageService {
         description: description ? description : undefined,
         price: price ? price : undefined,
         durationInMonth: durationInMonth ? durationInMonth : undefined,
-        categories: foundCategory ? {
-          connect: foundCategory
-        } : undefined
-      }
+        categories: foundCategory
+          ? {
+              connect: foundCategory,
+            }
+          : undefined,
+      },
     });
 
     return modulePackage;
