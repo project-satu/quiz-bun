@@ -1,16 +1,17 @@
 import { Body, Controller, Get, Post, Query } from '@nestjs/common';
-import { successResponse, errorResponse } from '@/utils/helpers/response.helper';
+import {
+  successResponse,
+  errorResponse,
+} from '@/utils/helpers/response.helper';
 import { Filter } from '@/common/dto.common';
 import { CategoryService } from './category.service';
-import { BulkCreateCategoryDto, CreateCategoryDto } from './dto/category.dto';
-import { ApiParam } from '@nestjs/swagger';
+import { BulkCreateCategoryDto } from './dto/category.dto';
+import { ApiBearerAuth, ApiParam } from '@nestjs/swagger';
 
-// @ApiBearerAuth('access-token')
+@ApiBearerAuth('access-token')
 @Controller()
 export class CategoryController {
-  constructor(
-    private readonly categoryService: CategoryService,
-  ) { }
+  constructor(private readonly categoryService: CategoryService) {}
 
   @Get('categories')
   async findAll(@Query() params: Filter) {
@@ -41,7 +42,7 @@ export class CategoryController {
     try {
       const data = await this.categoryService.create(dto);
 
-      return successResponse({ data })
+      return successResponse({ data });
     } catch (error) {
       console.log(error);
       return errorResponse(error.message, error.status);

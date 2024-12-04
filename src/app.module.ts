@@ -9,6 +9,7 @@ import { UserModule } from './modules/user/user.module';
 import { AuthModule } from './modules/auth/auth.module';
 import { TagModule } from './modules/tag/tag.module';
 import { QuestionModule } from './modules/question/question.module';
+import { CityModule } from './modules/city/city.module';
 
 @Module({
   imports: [
@@ -19,9 +20,10 @@ import { QuestionModule } from './modules/question/question.module';
     ModulePackageModule,
     MaterialModule,
     QuizModule,
-    QuestionModule
+    QuestionModule,
+    CityModule,
   ],
   controllers: [AppController],
   providers: [AppService],
 })
-export class AppModule { }
+export class AppModule {}
