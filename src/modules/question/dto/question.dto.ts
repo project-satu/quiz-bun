@@ -24,3 +24,9 @@ export class CreateQuestionDto {
   @IsObject()
   questionExplanation?: CreateQuestionExplanationDto
 }
+
+export class UpdateQuestionDto extends CreateQuestionDto {
+  @ApiProperty({ required: true })
+  @IsString()
+  uuid: string
+}
