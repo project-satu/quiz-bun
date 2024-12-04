@@ -4,5 +4,5 @@ export enum CategoryType {
   CATEGIRY_TYPE_BLOG = 'blog',
   CATEGIRY_TYPE_TAG = 'tag',
   CATEGIRY_TYPE_MATERIAL = 'material',
-  CATEGIRY_TYPE_QUESTION = 'question'
+  CATEGIRY_TYPE_QUESTION = 'question',
 }
