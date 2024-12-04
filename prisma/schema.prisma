@@ -280,7 +280,7 @@ model Transaction {
   id                  Int      @id @default(autoincrement())
   uuid                String   @default(uuid()) @unique
   amount              Int
-  purchaseAt         DateTime
+  purchaseAt          DateTime?
   packagePurchaseId   Int?
   statusId           Int?
   transactionId      String
