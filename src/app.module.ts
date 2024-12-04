@@ -22,6 +22,7 @@ import { CityModule } from './modules/city/city.module';
     MaterialModule,
     QuizModule,
     QuestionModule,
+    PackagePurchaseModule,
     CityModule,
     PackagePurchaseModule,
   ],
