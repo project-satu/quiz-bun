@@ -24,7 +24,6 @@ import { CityModule } from './modules/city/city.module';
     QuestionModule,
     CityModule,
     PackagePurchaseModule,
-    PackagePurchaseModule,
   ],
   controllers: [AppController],
   providers: [AppService],
