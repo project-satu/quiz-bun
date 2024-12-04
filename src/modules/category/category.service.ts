@@ -7,9 +7,7 @@ import { CategoryType } from '@/constant/enum/category-type.enum';
 
 @Injectable()
 export class CategoryService {
-  constructor(
-    private prisma: PrismaService
-  ) { }
+  constructor(private prisma: PrismaService) {}
 
   async getCategories(params: Filter): Promise<any> {
     const page = Number(params.page) || 1;
@@ -25,12 +23,12 @@ export class CategoryService {
           uuid: true,
           title: true,
           value: true,
-          type: true
-        }
+          type: true,
+        },
       }),
 
-      this.prisma.category.count()
-    ])
+      this.prisma.category.count(),
+    ]);
 
     const last_page = Math.ceil(total / per_page);
     const from = skip + 1;
@@ -67,9 +65,9 @@ export class CategoryService {
             uuid: true,
             title: true,
             description: true,
-          }
-        }
-      }
+          },
+        },
+      },
     });
   }
 
@@ -80,7 +78,11 @@ export class CategoryService {
       throw new Error('No data provided');
     }
 
-    if (!data.every((item: CreateCategoryDto) => Object.values(CategoryType).includes(item.type))) {
+    if (
+      !data.every((item: CreateCategoryDto) =>
+        Object.values(CategoryType).includes(item.type),
+      )
+    ) {
       throw new Error('Invalid category type');
     }
 
@@ -99,7 +101,9 @@ export class CategoryService {
         })),
       });
 
-      return categories.count !== 0 ? "Categories created successfully" : "No categories created";
+      return categories.count !== 0
+        ? 'Categories created successfully'
+        : 'No categories created';
     } catch (error) {
       throw new Error('Error creating categories: ' + error.message);
     }

@@ -10,6 +10,7 @@ import { AuthModule } from './modules/auth/auth.module';
 import { TagModule } from './modules/tag/tag.module';
 import { QuestionModule } from './modules/question/question.module';
 import { PackagePurchaseModule } from './modules/package-purchase/package-purchase.module';
+import { CityModule } from './modules/city/city.module';
 
 @Module({
   imports: [
@@ -21,6 +22,8 @@ import { PackagePurchaseModule } from './modules/package-purchase/package-purcha
     MaterialModule,
     QuizModule,
     QuestionModule,
+    CityModule,
+    PackagePurchaseModule,
     PackagePurchaseModule,
   ],
   controllers: [AppController],
