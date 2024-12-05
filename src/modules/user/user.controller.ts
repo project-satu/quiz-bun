@@ -9,7 +9,7 @@ import {
 import { ApiBearerAuth } from '@nestjs/swagger';
 import { JwtAuthGuard } from '../auth/guards/jwt.guard';
 import { UserService } from './user.service';
-import { UuidDto } from '@/common/dto.common';
+import { Filter, UuidDto } from '@/common/dto.common';
 
 @ApiBearerAuth('access-token')
 @UseGuards(JwtAuthGuard)
@@ -21,11 +21,11 @@ export class UserController {
   ) { }
 
   @Get('users')
-  async getUsers(@Req() req: Request) {
+  async getUsers(@Query() params: Filter) {
     try {
-      return successResponse({
-        data: req.user,
-      });
+      const data = await this.userService.findAll(params);
+
+      return successResponse({ data, isPaginate: true });
     } catch (error) {
       return errorResponse(error.message, error.status);
     }
