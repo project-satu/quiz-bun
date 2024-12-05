@@ -11,9 +11,9 @@ import {
 export class PackagePurchaseController {
   constructor(
     private readonly packagePurchaseService: PackagePurchaseService,
-  ) {}
+  ) { }
 
-  @Post('paackage-purchase')
+  @Post('package-purchase')
   async create(@Body() dto: CreatePackagePurchaseDto, @Req() req: Request) {
     try {
       const data = await this.packagePurchaseService.create(dto, req.user);

@@ -12,7 +12,7 @@ import {
   successResponse,
   errorResponse,
 } from '@/utils/helpers/response.helper';
-import { Filter } from '@/common/dto.common';
+import { Filter, UuidDto } from '@/common/dto.common';
 import { ModulePackageService } from './module-package.service';
 import {
   CreateModulePackageDto,
@@ -29,7 +29,7 @@ export class ModulePackageController {
   constructor(
     private readonly modulePackageService: ModulePackageService,
     private readonly packagePurchaseService: PackagePurchaseService,
-  ) {}
+  ) { }
 
   @Get('module-packages')
   async findAll(@Query() params: Filter) {
@@ -81,6 +81,23 @@ export class ModulePackageController {
       const data = await this.packagePurchaseService.create(dto, req.user);
 
       return successResponse({ data });
+    } catch (error) {
+      console.log(error);
+      return errorResponse(error.message, error.status);
+    }
+  }
+
+  @ApiBearerAuth('access-token')
+  @Post('module-package/purchases')
+  @UseGuards(JwtAuthGuard)
+  async checkoutModulePackage(
+    @Query() params: Filter,
+    @Query() dto: UuidDto,
+  ) {
+    try {
+      const data = await this.modulePackageService.getModulePackagePurchases(dto, params);
+
+      return successResponse({ data, isPaginate: true });
     } catch (error) {
       console.log(error);
       return errorResponse(error.message, error.status);

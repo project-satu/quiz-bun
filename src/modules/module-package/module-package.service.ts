@@ -4,12 +4,13 @@ import {
   CreateModulePackageDto,
   UpdateModulePackageDto,
 } from './dto/module-package.dto';
-import { Filter } from '@/common/dto.common';
+import { Filter, UuidDto } from '@/common/dto.common';
 import { errorResponse } from '@/utils/helpers/response.helper';
+import { paginationResponse, paramPaginate } from '@/utils/helpers/pagination.helper';
 
 @Injectable()
 export class ModulePackageService {
-  constructor(private prisma: PrismaService) {}
+  constructor(private prisma: PrismaService) { }
 
   async getModulePackages(params: Filter): Promise<any> {
     const page = Number(params.page) || 1;
@@ -135,13 +136,13 @@ export class ModulePackageService {
 
     const foundCategory = categories
       ? await Promise.all(
-          categories.map(
-            async (category: { uuid: string }) =>
-              await this.prisma.category.findFirst({
-                where: { uuid: category.uuid },
-              }),
-          ),
-        )
+        categories.map(
+          async (category: { uuid: string }) =>
+            await this.prisma.category.findFirst({
+              where: { uuid: category.uuid },
+            }),
+        ),
+      )
       : undefined;
 
     const modulePackage = await this.prisma.modulePackage.update({
@@ -153,12 +154,80 @@ export class ModulePackageService {
         durationInMonth: durationInMonth ? durationInMonth : undefined,
         categories: foundCategory
           ? {
-              connect: foundCategory,
-            }
+            connect: foundCategory,
+          }
           : undefined,
       },
     });
 
     return modulePackage;
+  }
+
+  async getModulePackagePurchases(UuidDto: UuidDto, params: Filter): Promise<any> {
+    const { uuid } = UuidDto;
+    const { page, per_page, skip, take } = paramPaginate(params);
+
+    const modulePackage = await this.prisma.modulePackage.findFirst({
+      where: { uuid },
+      select: {
+        id: true,
+        uuid: true,
+        title: true,
+        description: true,
+        price: true,
+        durationInMonth: true,
+      }
+    })
+
+    if (!modulePackage) return errorResponse('Module package not found');
+
+    const [purchases, total] = await this.prisma.$transaction([
+      this.prisma.packagePurchase.findMany({
+        where: {
+          packageId: modulePackage.id,
+        },
+        select: {
+          id: true,
+          uuid: true,
+          isActive: true,
+          user: {
+            select: {
+              id: true,
+              uuid: true,
+              name: true,
+              email: true,
+              phone: true,
+              role: {
+                select: {
+                  id: true,
+                  uuid: true,
+                  name: true,
+                  value: true,
+                },
+              },
+            },
+          }
+        }
+      }),
+
+      this.prisma.packagePurchase.count({
+        where: {
+          packageId: modulePackage.id,
+        }
+      })
+    ])
+
+    const newData = {
+      ...modulePackage,
+      ...purchases
+    }
+
+    return paginationResponse(
+      total,
+      newData,
+      per_page,
+      page,
+      skip
+    )
   }
 }

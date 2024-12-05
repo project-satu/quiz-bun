@@ -177,6 +177,7 @@ model User {
   questions            Question[]
   quizzes              Quiz[]
   blogPosts            BlogPost[]
+  refreshTokens        RefreshToken[]
   createdAt            DateTime  @default(now())
   updatedAt            DateTime  @default(now())
 }
@@ -339,4 +340,14 @@ model UserAnswer {
   optionId    Int?
   createdAt   DateTime @default(now())
   updatedAt   DateTime @default(now())
+}
+
+model RefreshToken {
+  id        Int      @id @default(autoincrement())
+  uuid      String   @default(uuid()) @unique
+  userId    Int
+  token     String   @unique
+  expiresAt DateTime
+  revoked   Boolean  @default(false)
+  user      User     @relation(fields: [userId], references: [id])
 }

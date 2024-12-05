@@ -1,10 +1,11 @@
-import { Controller, Get, Query, Req, UseGuards } from "@nestjs/common";
+import { Controller, Get, Put, Query, Req, UseGuards } from "@nestjs/common";
 import { QuestionService } from "./question.service";
 import { UuidDto } from "@/common/dto.common";
 import { errorResponse, successResponse } from "@/utils/helpers/response.helper";
 import { JwtAuthGuard } from "../auth/guards/jwt.guard";
 import { ApiBearerAuth } from "@nestjs/swagger";
 import { Request } from 'express';
+import { UpdateQuestionDto } from "./dto/question.dto";
 
 @Controller()
 @UseGuards(JwtAuthGuard)
@@ -13,6 +14,18 @@ export class QuestionController {
   constructor(
     private readonly questionService: QuestionService
   ) { }
+
+  @Put('moderator/question')
+  async updateQuestion(@Query() questionDto: UpdateQuestionDto) {
+    try {
+      const question = await this.questionService.updateQuestion(questionDto);
+
+      return successResponse({ data: question });
+    } catch (error) {
+      console.log(error);
+      return errorResponse(error.message, error.status);
+    }
+  }
 
   @Get('moderator/question')
   async getQuestionForAdmin(@Query() questionDto: UuidDto, @Req() req: Request) {

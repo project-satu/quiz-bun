@@ -5,13 +5,51 @@ import { errorResponse } from '@/utils/helpers/response.helper';
 import { RoleService } from '../role/role.service';
 import { User } from '@prisma/client';
 import { PrismaService } from '@/config/prisma.config';
+import { Filter, UuidDto } from '@/common/dto.common';
+import { paginationResponse, paramPaginate } from '@/utils/helpers/pagination.helper';
 
 @Injectable()
 export class UserService {
   constructor(
     private readonly roleService: RoleService,
     private prisma: PrismaService,
-  ) {}
+  ) { }
+
+  async findAll(params: Filter): Promise<any> {
+    const { page, per_page, skip, take } = paramPaginate(params);
+
+    const [users, total] = await this.prisma.$transaction([
+      this.prisma.user.findMany({
+        skip,
+        take,
+        select: {
+          id: true,
+          uuid: true,
+          name: true,
+          email: true,
+          phone: true,
+          role: {
+            select: {
+              id: true,
+              uuid: true,
+              name: true,
+              value: true,
+            },
+          },
+        },
+      }),
+
+      this.prisma.user.count(),
+    ]);
+
+    return paginationResponse(
+      total,
+      users,
+      per_page,
+      page,
+      skip
+    );
+  }
 
   async findByEmail(email: string, relationRole: boolean): Promise<any> {
     const user = await this.prisma.user.findFirst({
@@ -28,13 +66,13 @@ export class UserService {
         role:
           relationRole == true
             ? {
-                select: {
-                  id: true,
-                  uuid: true,
-                  name: true,
-                  value: true,
-                },
-              }
+              select: {
+                id: true,
+                uuid: true,
+                name: true,
+                value: true,
+              },
+            }
             : undefined,
       },
     });
@@ -94,6 +132,56 @@ export class UserService {
             value: true,
           },
         },
+      },
+    });
+
+    return user;
+  }
+
+  async userDetails(userDto: UuidDto) {
+    const { uuid } = userDto;
+
+    const user = await this.prisma.user.findFirst({
+      where: {
+        uuid,
+      },
+      select: {
+        id: true,
+        uuid: true,
+        name: true,
+        email: true,
+        phone: true,
+        role: {
+          select: {
+            id: true,
+            uuid: true,
+            name: true,
+            value: true,
+          },
+        },
+        address: {
+          select: {
+            id: true,
+            uuid: true,
+            fullAddress: true,
+            city: {
+              select: {
+                id: true,
+                uuid: true,
+                name: true,
+                province: {
+                  select: {
+                    id: true,
+                    uuid: true,
+                    name: true,
+                    value: true,
+                    provincialCapital: true,
+                  },
+                },
+              },
+            },
+          },
+        }
       },
     });
 
