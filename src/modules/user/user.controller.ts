@@ -1,4 +1,4 @@
-import { Body, Controller, Get, Post, Req, UseGuards } from '@nestjs/common';
+import { Body, Controller, Get, Post, Query, Req, UseGuards } from '@nestjs/common';
 import { AddressService } from '../address/address.service';
 import { CreateAddressDto } from '../address/dto/address.dto';
 import { Request } from 'express';
@@ -32,7 +32,7 @@ export class UserController {
   }
 
   @Get('user/details')
-  async getUser(dto: UuidDto) {
+  async getUser(@Query() dto: UuidDto) {
     try {
       const data = await this.userService.userDetails(dto);
 
