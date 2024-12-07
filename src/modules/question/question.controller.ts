@@ -1,4 +1,4 @@
-import { Controller, Get, Put, Query, Req, UseGuards } from "@nestjs/common";
+import { Body, Controller, Get, Put, Query, Req, UseGuards } from "@nestjs/common";
 import { QuestionService } from "./question.service";
 import { UuidDto } from "@/common/dto.common";
 import { errorResponse, successResponse } from "@/utils/helpers/response.helper";
@@ -15,10 +15,10 @@ export class QuestionController {
     private readonly questionService: QuestionService
   ) { }
 
-  @Put('moderator/question')
-  async updateQuestion(@Query() questionDto: UpdateQuestionDto) {
+  @Get('question')
+  async getQuestion(@Query() questionDto: UuidDto, @Req() req: Request) {
     try {
-      const question = await this.questionService.updateQuestion(questionDto);
+      const question = await this.questionService.getQuestion(questionDto, false);
 
       return successResponse({ data: question });
     } catch (error) {
@@ -39,7 +39,7 @@ export class QuestionController {
     }
   }
 
-  @Get('moderator/question/explanation')
+  @Get('question/explanation')
   async getExplanation(@Query() questionDto: UuidDto) {
     try {
       const question = await this.questionService.getExplanation(questionDto);
@@ -51,10 +51,10 @@ export class QuestionController {
     }
   }
 
-  @Get('question')
-  async getQuestion(@Query() questionDto: UuidDto, @Req() req: Request) {
+  @Put('moderator/question')
+  async updateQuestion(@Body() questionDto: UpdateQuestionDto) {
     try {
-      const question = await this.questionService.getQuestion(questionDto, false);
+      const question = await this.questionService.updateQuestion(questionDto);
 
       return successResponse({ data: question });
     } catch (error) {
