@@ -18,7 +18,7 @@ export class CreateMaterialDto {
 
   @ApiProperty()
   @IsObject()
-  modulePacakge: ModulePackageUuidDto;
+  modulePackage: ModulePackageUuidDto;
 
   @ApiProperty({ type: [CategoryUuidDto] })
   @IsArray()
