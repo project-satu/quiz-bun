@@ -32,11 +32,42 @@ export class ModulePackageController {
   ) { }
 
   @Get('module-packages')
-  async findAll(@Query() params: Filter) {
+  async getModulePackages(@Query() params: Filter) {
     try {
       const data = await this.modulePackageService.getModulePackages(params);
 
       return successResponse({ data, isPaginate: true });
+    } catch (error) {
+      console.log(error);
+      return errorResponse(error.message, error.status);
+    }
+  }
+
+  @ApiBearerAuth('access-token')
+  @Get('moderator/module-packages')
+  @UseGuards(JwtAuthGuard)
+  async findAll(@Query() params: Filter, @Req() req: Request) {
+    try {
+      const data = await this.modulePackageService.getModulePackages(params, req.user);
+
+      return successResponse({ data, isPaginate: true });
+    } catch (error) {
+      console.log(error);
+      return errorResponse(error.message, error.status);
+    }
+  }
+
+  @ApiBearerAuth('access-token')
+  @Get('module-package/materials')
+  @UseGuards(JwtAuthGuard)
+  async getMaterialsByModulePackage(
+    @Query() params: Filter,
+    @Query() dto: UuidDto,
+  ) {
+    try {
+      const data = await this.modulePackageService.getMaterialsByModulePackage(dto, params);
+
+      return successResponse({ data });
     } catch (error) {
       console.log(error);
       return errorResponse(error.message, error.status);
