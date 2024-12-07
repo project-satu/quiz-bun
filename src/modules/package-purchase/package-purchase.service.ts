@@ -5,13 +5,57 @@ import { ModulePackageService } from '../module-package/module-package.service';
 import { errorResponse } from '@/utils/helpers/response.helper';
 import { TransactionStatusValue } from '@/constant/enum/transaction-status.enum';
 import { GenerateTrxId } from '@/utils/generateCode.util';
+import { Filter } from '@/common/dto.common';
+import { paginationResponse, paramPaginate } from '@/utils/helpers/pagination.helper';
 
 @Injectable()
 export class PackagePurchaseService {
   constructor(
     private readonly prisma: PrismaService,
     private readonly modulePackageService: ModulePackageService,
-  ) {}
+  ) { }
+
+  async findAll(params: Filter) {
+    const {
+      page,
+      per_page,
+      skip,
+      take
+    } = paramPaginate(params);
+
+    const [packagePurchases, total] = await this.prisma.$transaction([
+      this.prisma.packagePurchase.findMany({
+        skip,
+        take,
+        select: {
+          id: true,
+          uuid: true,
+          isActive: true,
+          expiredAt: true,
+          package: {
+            select: {
+              id: true,
+              uuid: true,
+              title: true,
+              description: true,
+              price: true,
+              durationInMonth: true,
+            },
+          },
+        },
+      }),
+
+      this.prisma.packagePurchase.count()
+    ]);
+
+    return paginationResponse(
+      total,
+      packagePurchases,
+      per_page,
+      page,
+      skip
+    );
+  }
 
   async create(createPackageDto: CreatePackagePurchaseDto, user: any) {
     const { modulePackage } = createPackageDto;
