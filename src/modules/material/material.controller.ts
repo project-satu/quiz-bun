@@ -1,6 +1,6 @@
 import { Body, Controller, Get, Post, Put, Query } from '@nestjs/common';
 import { successResponse, errorResponse } from '@/utils/helpers/response.helper';
-import { Filter } from '@/common/dto.common';
+import { Filter, UuidDto } from '@/common/dto.common';
 import { MaterialService } from './material.service';
 import { CreateMaterialDto, UpdateMaterialDto } from './dto/material.dto';
 
@@ -24,7 +24,7 @@ export class MaterialController {
   }
 
   @Get('material')
-  async findOne(@Query() params: string) {
+  async findOne(@Query() params: UuidDto) {
     try {
       const data = await this.materialService.findOne(params);
       return successResponse({ data });
