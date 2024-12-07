@@ -308,9 +308,21 @@ model PackagePurchase {
   expiredAt   DateTime
   packageId   Int?
   userId      Int?
+  statusId    Int?
   package     ModulePackage? @relation(fields: [packageId], references: [id])
   user        User?    @relation(fields: [userId], references: [id])
+  status      PurchaseStatus? @relation(fields: [statusId], references: [id])
   transactions Transaction[]
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @default(now())
+}
+
+model PurchaseStatus {
+  id          Int      @id @default(autoincrement())
+  uuid        String   @default(uuid()) @unique
+  title       String
+  value       String   @unique
+  pruchases   PackagePurchase[]
   createdAt   DateTime @default(now())
   updatedAt   DateTime @default(now())
 }
