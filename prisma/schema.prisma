@@ -281,6 +281,7 @@ model Transaction {
   id                  Int      @id @default(autoincrement())
   uuid                String   @default(uuid()) @unique
   amount              Int
+  uniqueCode          Int      @default(0)
   purchaseAt          DateTime?
   packagePurchaseId   Int?
   statusId           Int?
