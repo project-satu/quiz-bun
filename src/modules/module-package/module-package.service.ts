@@ -196,9 +196,6 @@ export class ModulePackageService {
         id: true,
         uuid: true,
         title: true,
-        description: true,
-        price: true,
-        durationInMonth: true,
       }
     })
 
@@ -209,27 +206,31 @@ export class ModulePackageService {
         where: {
           packageId: modulePackage.id,
         },
+        skip,
+        take,
         select: {
           id: true,
           uuid: true,
           isActive: true,
+          status: {
+            select: {
+              id: true,
+              uuid: true,
+              title: true,
+              value: true,
+            }
+          },
           user: {
             select: {
               id: true,
               uuid: true,
               name: true,
               email: true,
-              phone: true,
-              role: {
-                select: {
-                  id: true,
-                  uuid: true,
-                  name: true,
-                  value: true,
-                },
-              },
             },
           }
+        },
+        orderBy: {
+          createdAt: 'desc'
         }
       }),
 
@@ -242,7 +243,7 @@ export class ModulePackageService {
 
     const newData = {
       ...modulePackage,
-      ...purchases
+      purchases
     }
 
     return paginationResponse(
