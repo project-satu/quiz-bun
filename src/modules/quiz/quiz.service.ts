@@ -7,10 +7,12 @@ import {
   paginationResponse,
   paramPaginate,
 } from '@/utils/helpers/pagination.helper';
+import { RoleValue } from '@/constant/enum/role.type';
+import { isAdmin } from '@/utils/validation-role.util';
 
 @Injectable()
 export class QuizService {
-  constructor(private prisma: PrismaService) {}
+  constructor(private prisma: PrismaService) { }
 
   async findAll(): Promise<any> {
     return await this.prisma.quiz.findMany({
@@ -44,9 +46,7 @@ export class QuizService {
   }
 
   async getQuizzes(params: Filter): Promise<any> {
-    const page = Number(params.page) || 1;
-    const per_page = Number(params.per_page) || 10;
-    const skip = (page - 1) * per_page;
+    const { page, per_page, skip } = paramPaginate(params);
 
     const [quizzes, total] = await this.prisma.$transaction([
       this.prisma.quiz.findMany({
@@ -57,51 +57,21 @@ export class QuizService {
           uuid: true,
           title: true,
           description: true,
-          questions: {
-            select: {
-              questionText: true,
-              questionImage: true,
-              points: true,
-              options: {
-                select: {
-                  optionText: true,
-                  optionImage: true,
-                  isCorrect: true,
-                },
-              },
-              explanation: {
-                select: {
-                  explanationText: true,
-                  explanationImage: true,
-                },
-              },
-            },
-          },
         },
       }),
       this.prisma.quiz.count(),
     ]);
 
-    const last_page = Math.ceil(total / per_page);
-    const from = skip + 1;
-    const to = Math.min(skip + per_page, total);
-
-    return {
-      items: quizzes,
-      meta: {
-        pagination: {
-          total,
-          per_page,
-          current_page: page,
-          last_page,
-          from,
-          to,
-        },
-      },
-    };
+    return paginationResponse(
+      total,
+      quizzes,
+      per_page,
+      page,
+      skip
+    );
   }
 
-  async findOne(quizDto: UuidDto, params: Filter): Promise<any> {
+  async findOne(quizDto: UuidDto, params: Filter, user: any): Promise<any> {
     const pagination = paramPaginate(params);
 
     const quiz = await this.prisma.quiz.findFirst({
@@ -122,20 +92,18 @@ export class QuizService {
         skip: pagination.skip,
         take: pagination.take,
         select: {
+          id: true,
+          uuid: true,
           questionText: true,
           questionImage: true,
-          points: true,
+          points: isAdmin(user) ? true : false,
           options: {
             select: {
+              id: true,
+              uuid: true,
               optionText: true,
               optionImage: true,
-              isCorrect: true,
-            },
-          },
-          explanation: {
-            select: {
-              explanationText: true,
-              explanationImage: true,
+              isCorrect: isAdmin(user) ? true : false,
             },
           },
         },
@@ -219,8 +187,8 @@ export class QuizService {
 
     const module = modulePackage?.uuid
       ? await this.prisma.modulePackage.findFirst({
-          where: { uuid: modulePackage.uuid },
-        })
+        where: { uuid: modulePackage.uuid },
+      })
       : undefined;
 
     if (modulePackage?.uuid && !module)
@@ -234,59 +202,59 @@ export class QuizService {
         moduleId: module ? module?.id : undefined,
         questions: questions
           ? {
-              create: questions
-                ? questions?.map((question) => ({
-                    data: {
-                      questionText: question?.questionText
-                        ? question?.questionText
-                        : undefined,
-                      questionImage: question?.questionImage
-                        ? question?.questionImage
-                        : undefined,
-                      points: question?.points ? question?.points : undefined,
-                      options: question?.questionOptions
-                        ? {
-                            deleteMany: {
-                              id: {
-                                in: quiz?.questions?.map(
-                                  (question: { options: any[] }) =>
-                                    question?.options?.map(
-                                      (option) => option?.id,
-                                    ),
-                                ),
-                              },
-                            },
-                            create: question?.questionOptions?.map(
-                              (option: {
-                                optionText: string;
-                                optionImage: string;
-                                isCorrect: boolean;
-                              }) => ({
-                                data: {
-                                  optionText: option?.optionText,
-                                  optionImage: option?.optionImage,
-                                  isCorrect: option?.isCorrect,
-                                },
-                              }),
-                            ),
-                          }
-                        : undefined,
-                      explanation: question?.questionExplanation
-                        ?.explanationText
-                        ? {
-                            delete: true,
-                            create: {
-                              explanationText:
-                                question?.questionExplanation?.explanationText,
-                              explanationImage:
-                                question?.questionExplanation?.explanationImage,
-                            },
-                          }
-                        : undefined,
-                    },
-                  }))
-                : undefined,
-            }
+            create: questions
+              ? questions?.map((question) => ({
+                data: {
+                  questionText: question?.questionText
+                    ? question?.questionText
+                    : undefined,
+                  questionImage: question?.questionImage
+                    ? question?.questionImage
+                    : undefined,
+                  points: question?.points ? question?.points : undefined,
+                  options: question?.questionOptions
+                    ? {
+                      deleteMany: {
+                        id: {
+                          in: quiz?.questions?.map(
+                            (question: { options: any[] }) =>
+                              question?.options?.map(
+                                (option) => option?.id,
+                              ),
+                          ),
+                        },
+                      },
+                      create: question?.questionOptions?.map(
+                        (option: {
+                          optionText: string;
+                          optionImage: string;
+                          isCorrect: boolean;
+                        }) => ({
+                          data: {
+                            optionText: option?.optionText,
+                            optionImage: option?.optionImage,
+                            isCorrect: option?.isCorrect,
+                          },
+                        }),
+                      ),
+                    }
+                    : undefined,
+                  explanation: question?.questionExplanation
+                    ?.explanationText
+                    ? {
+                      delete: true,
+                      create: {
+                        explanationText:
+                          question?.questionExplanation?.explanationText,
+                        explanationImage:
+                          question?.questionExplanation?.explanationImage,
+                      },
+                    }
+                    : undefined,
+                },
+              }))
+              : undefined,
+          }
           : undefined,
       },
       include: {

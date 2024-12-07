@@ -7,20 +7,32 @@ import {
 import { Filter, UuidDto } from '@/common/dto.common';
 import { errorResponse } from '@/utils/helpers/response.helper';
 import { paginationResponse, paramPaginate } from '@/utils/helpers/pagination.helper';
+import { RoleValue } from '@/constant/enum/role.type';
+import { MaterialService } from '../material/material.service';
 
 @Injectable()
 export class ModulePackageService {
-  constructor(private prisma: PrismaService) { }
+  constructor(
+    private prisma: PrismaService,
+    private readonly materialService: MaterialService
+  ) { }
 
-  async getModulePackages(params: Filter): Promise<any> {
-    const page = Number(params.page) || 1;
-    const per_page = Number(params.per_page) || 10;
-    const skip = (page - 1) * per_page;
+  async getModulePackages(params: Filter, user?: any): Promise<any> {
+    const { page, per_page, skip, take } = paramPaginate(params);
 
     const [packages, total] = await this.prisma.$transaction([
       this.prisma.modulePackage.findMany({
+        where: user?.role?.value !== RoleValue.ADMIN ? {
+          quizzes: {
+            some: {}
+          }, AND: {
+            materials: {
+              some: {}
+            }
+          }
+        } : {},
         skip,
-        take: per_page,
+        take,
         select: {
           id: true,
           uuid: true,
@@ -28,14 +40,6 @@ export class ModulePackageService {
           description: true,
           price: true,
           durationInMonth: true,
-          quizzes: {
-            select: {
-              id: true,
-              uuid: true,
-              title: true,
-              description: true,
-            },
-          },
           categories: {
             select: {
               id: true,
@@ -47,26 +51,27 @@ export class ModulePackageService {
           },
         },
       }),
-      this.prisma.modulePackage.count(),
+
+      this.prisma.modulePackage.count({
+        where: user?.role?.value !== RoleValue.ADMIN ? {
+          quizzes: {
+            some: {}
+          }, AND: {
+            materials: {
+              some: {}
+            }
+          }
+        } : {}
+      }),
     ]);
 
-    const last_page = Math.ceil(total / per_page);
-    const from = skip + 1;
-    const to = Math.min(skip + per_page, total);
-
-    return {
-      items: packages,
-      meta: {
-        pagination: {
-          total,
-          per_page,
-          current_page: page,
-          last_page,
-          from,
-          to,
-        },
-      },
-    };
+    return paginationResponse(
+      total,
+      packages,
+      per_page,
+      page,
+      skip
+    )
   }
 
   async findOne(uuid: string): Promise<any> {
@@ -85,6 +90,24 @@ export class ModulePackageService {
             uuid: true,
             title: true,
             description: true,
+          },
+        },
+        materials: {
+          select: {
+            id: true,
+            uuid: true,
+            title: true,
+            materialImage: true,
+            materialText: true,
+          },
+        },
+        categories: {
+          select: {
+            id: true,
+            uuid: true,
+            title: true,
+            value: true,
+            type: true,
           },
         },
       },
@@ -229,5 +252,37 @@ export class ModulePackageService {
       page,
       skip
     )
+  }
+
+  async getMaterialsByModulePackage(UuidDto: UuidDto, params: Filter): Promise<any> {
+    const { uuid } = UuidDto;
+
+    const modulePackage = await this.prisma.modulePackage.findFirst({
+      where: { uuid },
+      select: {
+        id: true,
+        uuid: true,
+        title: true,
+        description: true,
+        price: true,
+        durationInMonth: true,
+      }
+    })
+
+    if (!modulePackage) return errorResponse('Module package not found');
+
+    const paramWhere = {
+      packageId: modulePackage.id,
+    };
+
+    const materials = await this.materialService.getMaterials(params, paramWhere);
+
+    const newData = {
+      ...modulePackage,
+      materials: materials?.items,
+      meta: materials?.meta
+    };
+
+    return newData;
   }
 }

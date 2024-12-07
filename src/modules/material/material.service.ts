@@ -1,9 +1,9 @@
 import { Injectable } from '@nestjs/common';
 import { PrismaService } from 'src/config/prisma.config';
 import { CreateMaterialDto, UpdateMaterialDto } from './dto/material.dto';
-import { Filter } from '@/common/dto.common';
-import { errorResponse, valueExists } from '@/utils/helpers/response.helper';
-import { CategoryType } from '@/constant/enum/category-type.enum';
+import { Filter, UuidDto } from '@/common/dto.common';
+import { errorResponse } from '@/utils/helpers/response.helper';
+import { paginationResponse, paramPaginate } from '@/utils/helpers/pagination.helper';
 
 @Injectable()
 export class MaterialService {
@@ -11,57 +11,33 @@ export class MaterialService {
     private prisma: PrismaService
   ) { }
 
-  async getMaterials(params: Filter): Promise<any> {
-    const page = Number(params.page) || 1;
-    const per_page = Number(params.per_page) || 10;
-    const skip = (page - 1) * per_page;
+  async getMaterials(params: Filter, where = {}): Promise<any> {
+    const { page, per_page, skip, take } = paramPaginate(params);
 
     const [categories, total] = await this.prisma.$transaction([
       this.prisma.material.findMany({
         skip,
-        take: per_page,
+        take,
+        where,
         select: {
           id: true,
           uuid: true,
           title: true,
           materialImage: true,
           materialText: true,
-          package: {
-            select: {
-              id: true,
-              uuid: true,
-              title: true,
-              description: true,
-              price: true,
-              durationInMonth: true,
-            }
-          }
         }
       }),
 
-      this.prisma.material.count()
+      this.prisma.material.count({
+        where
+      })
     ])
 
-    const last_page = Math.ceil(total / per_page);
-    const from = skip + 1;
-    const to = Math.min(skip + per_page, total);
-
-    return {
-      items: categories,
-      meta: {
-        pagination: {
-          total,
-          per_page,
-          current_page: page,
-          last_page,
-          from,
-          to,
-        },
-      },
-    };
+    return paginationResponse(total, categories, per_page, page, skip);
   }
 
-  async findOne(uuid: string): Promise<any> {
+  async findOne(uuidDto: UuidDto): Promise<any> {
+    const { uuid } = uuidDto;
     return await this.prisma.material.findFirst({
       where: { uuid },
       select: {
@@ -70,16 +46,6 @@ export class MaterialService {
         title: true,
         materialImage: true,
         materialText: true,
-        package: {
-          select: {
-            id: true,
-            uuid: true,
-            title: true,
-            description: true,
-            price: true,
-            durationInMonth: true,
-          }
-        }
       }
     });
   }
@@ -90,7 +56,7 @@ export class MaterialService {
       materialText,
       materialImage,
       categories,
-      modulePacakge,
+      modulePackage,
     } = dto;
 
     const foundCategory = await Promise.all(categories.map(
@@ -105,16 +71,18 @@ export class MaterialService {
       }
     ));
 
-    const foundPackage = await this.prisma.modulePackage.findFirst({
-      where: { uuid: modulePacakge.uuid },
+    const foundPackageModule = await this.prisma.modulePackage.findFirst({
+      where: { uuid: modulePackage.uuid },
     });
+
+    if (!foundPackageModule) return errorResponse('Package module not found');
 
     const material = await this.prisma.material.create({
       data: {
         title,
         materialText,
         materialImage,
-        packageId: foundPackage.id,
+        packageId: foundPackageModule.id,
         categories: {
           connect: foundCategory
         },
@@ -131,7 +99,7 @@ export class MaterialService {
       materialText,
       materialImage,
       categories,
-      modulePacakge,
+      modulePackage,
     } = dto;
 
     const foundCategory = categories.length > 0 ? await Promise.all(categories.map(
@@ -146,11 +114,11 @@ export class MaterialService {
       }
     )) : undefined;
 
-    const foundPackage = modulePacakge?.uuid ? await this.prisma.modulePackage.findFirst({
-      where: { uuid: modulePacakge.uuid },
+    const foundPackage = modulePackage?.uuid ? await this.prisma.modulePackage.findFirst({
+      where: { uuid: modulePackage.uuid },
     }) : undefined;
 
-    if (modulePacakge?.uuid && !foundPackage) return errorResponse('Module package not found');
+    if (modulePackage?.uuid && !foundPackage) return errorResponse('Module package not found');
 
     const material = await this.prisma.material.update({
       where: { uuid },

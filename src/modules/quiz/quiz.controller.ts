@@ -1,8 +1,9 @@
-import { Body, Controller, Get, Post, Put, Query } from '@nestjs/common';
+import { Body, Controller, Get, Post, Put, Query, Req } from '@nestjs/common';
 import { QuizService } from './quiz.service';
 import { CreateQuizDto, UpdateQuizDto } from './dto/quiz.dto';
 import { successResponse, errorResponse } from '@/utils/helpers/response.helper';
 import { Filter, UuidDto } from '@/common/dto.common';
+import { Request } from 'express';
 
 // @ApiBearerAuth('access-token')
 @Controller()
@@ -24,9 +25,9 @@ export class QuizController {
   }
 
   @Get('quiz')
-  async findOne(@Query() param: UuidDto, @Query() filter: Filter) {
+  async findOne(@Query() param: UuidDto, @Query() filter: Filter, @Req() req: Request) {
     try {
-      const data = await this.quizService.findOne(param, filter);
+      const data = await this.quizService.findOne(param, filter, req?.user);
 
       return successResponse({ data, isPaginate: true });
     } catch (error) {
