@@ -42,6 +42,22 @@ export class PackagePurchaseService {
               durationInMonth: true,
             },
           },
+          user: {
+            select: {
+              id: true,
+              uuid: true,
+              name: true,
+              email: true,
+            },
+          },
+          status: {
+            select: {
+              id: true,
+              uuid: true,
+              title: true,
+              value: true,
+            },
+          }
         },
       }),
 
@@ -72,7 +88,7 @@ export class PackagePurchaseService {
       },
     });
 
-    if (!trxStatus) return errorResponse('transaction status not found');
+    if (!trxStatus) return errorResponse('transaction status not found', 403);
 
     const currentDate = new Date();
     const expirationDate = new Date(
