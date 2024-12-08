@@ -7,6 +7,7 @@ import { User } from '@prisma/client';
 import { PrismaService } from '@/config/prisma.config';
 import { Filter, UuidDto } from '@/common/dto.common';
 import { paginationResponse, paramPaginate } from '@/utils/helpers/pagination.helper';
+import { RoleValue } from '@/constant/enum/role.type';
 
 @Injectable()
 export class UserService {
@@ -103,7 +104,9 @@ export class UserService {
       return errorResponse('Phone already exists');
     }
 
-    const findRole = await this.roleService.findOne(role.uuid);
+    const findRole = role?.uuid
+      ? await this.roleService.findOne(role?.uuid)
+      : await this.prisma.role.findFirst({ where: { value: RoleValue.STUDENT } });
 
     if (!findRole) {
       return errorResponse('Role not found');

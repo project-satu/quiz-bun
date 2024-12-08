@@ -9,12 +9,14 @@ import { errorResponse } from '@/utils/helpers/response.helper';
 import { paginationResponse, paramPaginate } from '@/utils/helpers/pagination.helper';
 import { RoleValue } from '@/constant/enum/role.type';
 import { MaterialService } from '../material/material.service';
+import { QuizService } from '../quiz/quiz.service';
 
 @Injectable()
 export class ModulePackageService {
   constructor(
     private prisma: PrismaService,
-    private readonly materialService: MaterialService
+    private readonly materialService: MaterialService,
+    private readonly quizService: QuizService
   ) { }
 
   async getModulePackages(params: Filter, user?: any): Promise<any> {
@@ -264,9 +266,6 @@ export class ModulePackageService {
         id: true,
         uuid: true,
         title: true,
-        description: true,
-        price: true,
-        durationInMonth: true,
       }
     })
 
@@ -282,6 +281,35 @@ export class ModulePackageService {
       ...modulePackage,
       materials: materials?.items,
       meta: materials?.meta
+    };
+
+    return newData;
+  }
+
+  async getQuizzesByModulePackage(UuidDto: UuidDto, params: Filter): Promise<any> {
+    const { uuid } = UuidDto;
+
+    const modulePackage = await this.prisma.modulePackage.findFirst({
+      where: { uuid },
+      select: {
+        id: true,
+        uuid: true,
+        title: true,
+      }
+    })
+
+    if (!modulePackage) return errorResponse('Module package not found');
+
+    const paramWhere = {
+      moduleId: modulePackage.id,
+    };
+
+    const quizzes = await this.quizService.getQuizzes(params, paramWhere);
+    console.log(quizzes, 'quizzes');
+    const newData = {
+      ...modulePackage,
+      quizzes: quizzes?.items,
+      meta: quizzes?.meta
     };
 
     return newData;

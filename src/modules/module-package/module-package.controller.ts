@@ -75,6 +75,23 @@ export class ModulePackageController {
   }
 
   @ApiBearerAuth('access-token')
+  @Get('module-package/quizzes')
+  @UseGuards(JwtAuthGuard)
+  async getQuizzesByModulePackage(
+    @Query() params: Filter,
+    @Query() dto: UuidDto,
+  ) {
+    try {
+      const data = await this.modulePackageService.getQuizzesByModulePackage(dto, params);
+
+      return successResponse({ data });
+    } catch (error) {
+      console.log(error);
+      return errorResponse(error.message, error.status);
+    }
+  }
+
+  @ApiBearerAuth('access-token')
   @Post('module-package')
   @UseGuards(JwtAuthGuard)
   async create(@Body() dto: CreateModulePackageDto) {

@@ -6,13 +6,24 @@ import {
 } from '@/utils/helpers/response.helper';
 import { Request } from 'express';
 import { ApiBearerAuth } from '@nestjs/swagger';
-import { LoginDto, RegisterDto } from './dto/auth.dto';
+import { LoginDto, RegisterDto, StudentRegisterDto } from './dto/auth.dto';
 import { LocalGuard } from './guards/local.guard';
 import { JwtAuthGuard } from './guards/jwt.guard';
 
 @Controller('auth')
 export class AuthController {
-  constructor(private readonly authService: AuthService) {}
+  constructor(private readonly authService: AuthService) { }
+
+  @Post('register/student')
+  async registerStudent(@Body() dto: StudentRegisterDto) {
+    try {
+      const data = await this.authService.registerUser(dto);
+
+      return successResponse({ data });
+    } catch (error) {
+      return errorResponse(error.message, error.status);
+    }
+  }
 
   @Post('register')
   async register(@Body() registerDto: RegisterDto) {

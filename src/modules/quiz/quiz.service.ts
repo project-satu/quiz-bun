@@ -7,7 +7,6 @@ import {
   paginationResponse,
   paramPaginate,
 } from '@/utils/helpers/pagination.helper';
-import { RoleValue } from '@/constant/enum/role.type';
 import { isAdmin } from '@/utils/validation-role.util';
 
 @Injectable()
@@ -45,13 +44,14 @@ export class QuizService {
     });
   }
 
-  async getQuizzes(params: Filter): Promise<any> {
-    const { page, per_page, skip } = paramPaginate(params);
+  async getQuizzes(params: Filter, where = {}): Promise<any> {
+    const { page, per_page, skip, take } = paramPaginate(params);
 
     const [quizzes, total] = await this.prisma.$transaction([
       this.prisma.quiz.findMany({
         skip,
-        take: per_page,
+        take,
+        where,
         select: {
           id: true,
           uuid: true,
@@ -59,7 +59,8 @@ export class QuizService {
           description: true,
         },
       }),
-      this.prisma.quiz.count(),
+
+      this.prisma.quiz.count({ where }),
     ]);
 
     return paginationResponse(
